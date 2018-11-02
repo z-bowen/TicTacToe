@@ -1,39 +1,39 @@
-pragma solidity ^0.4.24;
+// pragma solidity ^0.4.24;
 
-import "truffle/Assert.sol";
-import "truffle/DeployedAddresses.sol";
-import "../contracts/TicTacToe.sol";
+// import "truffle/Assert.sol";
+// import "truffle/DeployedAddresses.sol";
+// import "../contracts/TicTacToe.sol";
 
-contract testTicTacToe {
-	
-	function testNewGame() public {
-		// Create a new game between msg.sender and p2
+// contract testTicTacToe {
 
-		TicTacToe ttt = TicTacToe(DeployedAddresses.TicTacToe());
+// 	function testNewGame() public {
+// 		// Create a new game between msg.sender and p2
 
-		address p1 = msg.sender;
-		address p2 = address(bytes32("player 2"));		
+// 		TicTacToe ttt = TicTacToe(DeployedAddresses.TicTacToe());
 
-		uint id = ttt.newGame(p2);
+// 		address p1 = msg.sender;
+// 		address p2 = address(bytes32("player 2"));
 
-		//uint8[] board;
-		address player1;
-		address player2;
+// 		uint id = ttt.newGame(p2);
 
-		(player1, player2) = ttt.getGame(id);
+// 		//uint8[] board;
+// 		address player1;
+// 		address player2;
 
-		//check that the board is empty
-		//Assert.equal(board, uint8[9], "New games should be created with an empty board state");
-		//check p1 is msg.sender
-		Assert.equal(player1, p1, "Player 1 should be msg.sender");
-		// check p2 is the specified address
-		Assert.equal(player2, p2, "Player 2 should be the address from the arguments");
-	}
+// 		(player1, player2) = ttt.getPlayers(id);
+
+// 		//check that the board is empty
+// 		//Assert.equal(board, uint8[9], "New games should be created with an empty board state");
+// 		//check p1 is msg.sender
+// 		Assert.equal(player1, p1, "Player 1 should be msg.sender");
+// 		// check p2 is the specified address
+// 		Assert.equal(player2, p2, "Player 2 should be the address from the arguments");
+// 	}
 
 	//function testVictory() public pure {
 		// Test _checkForVictory returns the winner with a winning board
 	//}
-	
+
 	//function testNoVictory() public pure {
 		// Test _checkForVictory returns False with an ongoing board
 	//}

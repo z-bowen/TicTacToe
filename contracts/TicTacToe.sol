@@ -8,21 +8,22 @@ contract TicTacToe {
 		address player2;
 	}
 
-	Game[] public games;
+	uint public gameCounter;
+	mapping (uint => Game) public games;
 
 	function newGame(address player2) public returns(uint) {
 		// Creates a new game with player1 set to msg.sender
-		
-		address player1 = msg.sender;
+		gameCounter++;
 		uint8[9] memory newBoard;
 
-		Game memory game = Game(newBoard, player1, player2);
-		uint id = games.push(game) - 1;
+		games[gameCounter].board = newBoard;
+		games[gameCounter].player1 = msg.sender;
+		games[gameCounter].player2 = player2;
 
-		return(id);
+		return gameCounter;
 	}
 
-	function getGame(uint id) public view returns (address, address) {
+	function getPlayers(uint id) public view returns (address, address) {
 		return (games[id].player1, games[id].player2);
 	}
 

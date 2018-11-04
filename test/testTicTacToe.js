@@ -114,9 +114,10 @@ const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
 			const gameId = await ticTacToe.gameCounter()
 
 			try {
-				ticTacToe.move(gameId, 0, 1, { from: player2 })
+				await ticTacToe.move(gameId, 0, 1, { from: player2 })
+				assert.fail()
 			} catch (err) {
-                                assert(err.toString().includes("It's not your turn!"), error.toString())
+                        	assert(err.toString().includes("It's not your turn!"), err.toString())
 			}
 		});
 
@@ -128,9 +129,10 @@ const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
                         await ticTacToe.move(gameId, 0, 0, { from: player1 })
 
 			try {
-				ticTacToe.move(gameId, 0, 1, { from: player1 })
+				await ticTacToe.move(gameId, 0, 1, { from: player1 })
+				assert.fail()
 			} catch (err) {
-				assert(err.toString().includes("It's not your turn!"), error.toString())
+				assert(err.toString().includes("It's not your turn!"), err.toString())
 			}
 		});
 	});

@@ -95,27 +95,29 @@ const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
 			assert.equal(board[0], 1)
 		});
 
+                it("allows player 2 to move on even turns", async () => {
+                        await ticTacToe.newGame(player2, { from: player1 })
+
+                        const gameId = await ticTacToe.gameCounter()
+
+                        await ticTacToe.move(gameId, 0, 0, { from: player1 })
+                        await ticTacToe.move(gameId, 1, 0, { from: player2 })
+
+                        const board = await ticTacToe.getBoard(gameId.toNumber())
+                        assert.equal(board[1].toNumber(), 2)
+                });
+
+
 		it("prohibits player 2 from moving on odd turns", async () => {
 			await ticTacToe.newGame(player2, { from: player1})
 
 			const gameId = await ticTacToe.gameCounter()
 
-			const err = await ticTacToe.move(gameId, 0, 1, { from: player2 })
-			console.log("ERR")
-			console.log(err)
-			assert.equal(err, "It's not your turn!")
-		});
-
-		it("allows player 2 to move on even turn", async () => {
-			await ticTacToe.newGame(player2, { from: player1 })
-
-                        const gameId = await ticTacToe.gameCounter()
-
-			await ticTacToe.move(gameId, 0, 0, { from: player1 })
-                        await ticTacToe.move(gameId, 1, 0, { from: player2 })
-
-			const board = await ticTacToe.getBoard(gameId.toNumber())
-			assert.equal(board[1].toNumber(), 2)
+			try {
+				ticTacToe.move(gameId, 0, 1, { from: player2 })
+			} catch (err) {
+                                assert(err.toString().includes("It's not your turn!"), error.toString())
+			}
 		});
 
 		it("prohibits player 1 from moving on even turns", async () => {
@@ -124,12 +126,12 @@ const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
                         const gameId = await ticTacToe.gameCounter()
 			
                         await ticTacToe.move(gameId, 0, 0, { from: player1 })
-                        const err = await ticTacToe.move(gameId, 0, 1, { from: player1 })
 
-			assert.equal(err, "It's not your turn!")
+			try {
+				ticTacToe.move(gameId, 0, 1, { from: player1 })
+			} catch (err) {
+				assert(err.toString().includes("It's not your turn!"), error.toString())
+			}
 		});
 	});
-
-	//TODO: Need a test to make sure that users can't modify the board in any way other than through the move() method. How to test this?
-
 }); 

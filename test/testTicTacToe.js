@@ -1,4 +1,4 @@
-const TicTacToe = artifacts.require("./TicTacToe.sol");
+const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
 
 	contract.only("TicTacToe", ([player1, player2]) => {
 		let ticTacToe;
@@ -7,7 +7,7 @@ const TicTacToe = artifacts.require("./TicTacToe.sol");
  	});
 
 
-	describe("#newGame", () => { //TODO: gameCounter still not updating...
+	describe("#newGame", () => {
 		it("creates a new game with player1 set to msg sender", async () => {
 			await ticTacToe.newGame(player2, { from: player1 })
 			
@@ -23,44 +23,69 @@ const TicTacToe = artifacts.require("./TicTacToe.sol");
 		
 
 		});
+
+		it("updates the gameCounter", async () => {
+			//create game 1
+			await ticTacToe.newGame(player2, { from: player1 })
+			const gameId1 = await ticTacToe.gameCounter()
+			
+			//create game 2
+			await ticTacToe.newGame(player2, { from: player1 })
+			const gameId2 = await ticTacToe.gameCounter()
+
+			assert.equal(gameId1, 1, "First gameId is 1")
+			assert.equal(gameId2, 2, "Second gameId is 2")
+		});
 	});
 	
-	describe("#_checkForVictory", () => { //TODO: Test is failing because _checkForVictory is a private method. How to write unit tests for these?
+	describe("#_checkForVictory", () => {
 		it("correctly detects a winning board", async () => {
-			const noWin = await ticTacToe._checkForVictory([0,0,0,0,0,0,0,0,0])
-			const p1Wins = await ticTacToe._checkForVictory([0,2,1,2,1,0,1,0,0])
-			const p2Wins = await ticTacToe._checkForVictory([1,2,1,1,2,1,0,2,0])
-
+			const noWin = await ticTacToe.test_checkForVictory.call([0,0,0,0,0,0,0,0,0])
 			assert.equal(noWin, 0, 'This is a board with no winner')
+		});
+
+		it("correctly identifies when player1 has won", async () => {
+			const p1Wins = await ticTacToe.test_checkForVictory.call([0,2,1,2,1,0,1,0,0])
 			assert.equal(p1Wins, 1, 'player1 has won this game')
+		});
+		
+		it("correctly identifies when player2 has won", async () => {
+			const p2Wins = await ticTacToe.test_checkForVictory.call([1,2,1,1,2,1,0,2,0])
 			assert.equal(p2Wins, 2, 'player2 has won this game')
 		});
 	});
 
-	describe("#_countSpaces", () => { //TODO: Test is failing because _checkForVictory is a private method. How to write unit tests for these?
-		it("counts the number of spaces filled", async () => {
-			const emptyBoard = await ticTacToe._countSpaces([0,0,0,0,0,0,0,0,0])
-			const partialBoard = await ticTacToe._countSpaces([0,0,1,0,2,0,0,0,1])
-			const fullBoard = await ticTacToe._countSpaces([1,2,1,1,2,2,2,1,1])
-
+	describe("#_countSpaces", () => {
+		it("counts the number of spaces of an empty board", async () => {
+			const emptyBoard = await ticTacToe.test_countSpaces.call([0,0,0,0,0,0,0,0,0])
 			assert.equal(emptyBoard, 0, 'Expected 0 filled spaces with board [0,0,0,0,0,0,0,0,0]')
+		});
+
+		it("counts the number of spaces of a partly filled board", async () => {
+			const partialBoard = await ticTacToe.test_countSpaces.call([0,0,1,0,2,0,0,0,1])
 			assert.equal(partialBoard, 3, 'Expected 3 filled spaces with board [0,0,1,0,2,0,0,0,1]')
+		});
+
+		it("counts the number of spaces of a full board", async () => {
+			const fullBoard = await ticTacToe.test_countSpaces.call([1,2,1,1,2,2,2,1,1])
 			assert.equal(fullBoard, 9, 'Expected 9 filled spaces with board [1,2,1,1,2,2,2,1,1]')
-		})
+		});
 	});
 
-	describe("#_activePlayer", () => {//TODO: Test is failing because _checkForVictory is a private method. How to write unit tests for these?
-		it("returns the active player from the board state", async () => {
-			const player1ActiveBoard = await ticTacToe._activePlayer([0,0,1,2,0,0,0,0,0])
-			const player2ActiveBoard = await ticTacToe._activePlayer([0,0,0,0,1,0,0,0,0])
-		
+	describe("#_activePlayer", () => {
+		it("returns 1 when the board has an even number of filled spaces", async () => {
+			const player1ActiveBoard = await ticTacToe.test_activePlayer.call([0,0,1,2,0,0,0,0,0])
 			assert.equal(player1ActiveBoard, 1, 'player1 to move')
-			assert.equal(player1ActiveBoard, 2, 'player2 to move')
+		});
+
+		it("returns 2 when the board has an odd number of filled spaces", async () => {
+			const player2ActiveBoard = await ticTacToe.test_activePlayer.call([0,0,0,0,1,0,0,0,0])
+			assert.equal(player2ActiveBoard, 2, 'player2 to move')
 		});
 	});
 
 	describe("#move", () => { // Throwing error: Error: VM Exception while processing transaction: revert
-		it("only allows the active player to move", async () => {
+		it("allows player 1 to move on odd turns", async () => {
 			await ticTacToe.newGame(player2, { from: player1 })
 
 			const gameId = await ticTacToe.gameCounter()
@@ -68,13 +93,40 @@ const TicTacToe = artifacts.require("./TicTacToe.sol");
 			await ticTacToe.move(gameId, 0, 0, { from: player1 })
 			var board = await ticTacToe.getBoard(gameId.toNumber())
 			assert.equal(board[0], 1)
+		});
 
-			const err = await ticTacToe.move(gameId, 1, 1, {from: player1 })
+		it("prohibits player 2 from moving on odd turns", async () => {
+			await ticTacToe.newGame(player2, { from: player1})
+
+			const gameId = await ticTacToe.gameCounter()
+
+			const err = await ticTacToe.move(gameId, 0, 1, { from: player2 })
+			console.log("ERR")
+			console.log(err)
 			assert.equal(err, "It's not your turn!")
+		});
 
-			await ticTacToe.move(gameId, 1, 1, { from: player2 })
-			board = await ticTacToe.getBoard(gameId.toNumber())
-			assert.equal(board[0], 2)
+		it("allows player 2 to move on even turn", async () => {
+			await ticTacToe.newGame(player2, { from: player1 })
+
+                        const gameId = await ticTacToe.gameCounter()
+
+			await ticTacToe.move(gameId, 0, 0, { from: player1 })
+                        await ticTacToe.move(gameId, 1, 0, { from: player2 })
+
+			const board = await ticTacToe.getBoard(gameId.toNumber())
+			assert.equal(board[1].toNumber(), 2)
+		});
+
+		it("prohibits player 1 from moving on even turns", async () => {
+                        await ticTacToe.newGame(player2, { from: player1 })
+
+                        const gameId = await ticTacToe.gameCounter()
+			
+                        await ticTacToe.move(gameId, 0, 0, { from: player1 })
+                        const err = await ticTacToe.move(gameId, 0, 1, { from: player1 })
+
+			assert.equal(err, "It's not your turn!")
 		});
 	});
 

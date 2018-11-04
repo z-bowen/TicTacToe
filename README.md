@@ -1,5 +1,5 @@
 # TicTacToe
 
-** Run tests **
+**Run tests**
 
 - `truffle test`

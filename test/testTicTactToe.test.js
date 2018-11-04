@@ -1,6 +1,6 @@
 const TicTacToe = artifacts.require("./TicTacToe.sol");
 
-contract.only("TicTacToe", ([player1, player2]) => {
+contract.skip("TicTacToe", ([player1, player2]) => {
   let ticTacToe;
 
   beforeEach(async () => {

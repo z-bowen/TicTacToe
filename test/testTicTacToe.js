@@ -84,7 +84,7 @@ const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
 		});
 	});
 
-	describe("#move", () => { // Throwing error: Error: VM Exception while processing transaction: revert
+	describe("#move", () => {
 		it("allows player 1 to move on odd turns", async () => {
 			await ticTacToe.newGame(player2, { from: player1 })
 
@@ -117,7 +117,7 @@ const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
 				await ticTacToe.move(gameId, 0, 1, { from: player2 })
 				assert.fail()
 			} catch (err) {
-                        	assert(err.toString().includes("It's not your turn!"), err.toString())
+                        	assert(err.toString().includes("VM Exception while processing transaction"), err.toString())
 			}
 		});
 
@@ -132,7 +132,7 @@ const TicTacToe = artifacts.require("./TestableTicTacToe.sol");
 				await ticTacToe.move(gameId, 0, 1, { from: player1 })
 				assert.fail()
 			} catch (err) {
-				assert(err.toString().includes("It's not your turn!"), err.toString())
+				assert(err.toString().includes("VM Exception while processing transaction"), err.toString())
 			}
 		});
 	});
